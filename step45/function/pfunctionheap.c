@@ -53,3 +53,9 @@ Function* PFunctionHeap_deletemax(PFunctionHeap *p_self) {
   }
   return p_func;
 }
+
+void PFunctionHeap_destroy(PFunctionHeap* p_self) {
+  p_self->size = 0;
+  p_self->last = -1;
+  free(p_self->heap);
+}

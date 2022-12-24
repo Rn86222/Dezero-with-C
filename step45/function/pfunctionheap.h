@@ -12,5 +12,6 @@ typedef struct pfunctionheap {
 void PFunctionHeap_init(PFunctionHeap *p_self, const int size);
 void PFunctionHeap_insert(PFunctionHeap *p_self, Function* func);
 Function* PFunctionHeap_deletemax(PFunctionHeap *p_self);
+void PFunctionHeap_destroy(PFunctionHeap* p_self);
 
 #endif // _FUNCTIONHAP_H_
