@@ -1,0 +1,6 @@
+*.exe
+*.vscode
+*.png
+*.dot
+graphviz
+sample.txt

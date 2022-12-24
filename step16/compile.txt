@@ -1,0 +1,5 @@
+gcc step22.c add.c constant.c exp.c functionheap.c function.c functionstack.c ndarray.c square.c variable.c mul.c neg.c sub.c div.c pow.c log.c
+
+gcc step29.c function/add.c macro/constant.c function/exp.c function/functionheap.c function/function.c function/functionstack.c ndarray/ndarray.c function/square.c variable/variable.c function/mul.c function/neg.c function/sub.c function/div.c function/pow.c function/log.c dot/dot.c function/pfunctionheap.c function/sin.c
+
+TODO step16/variable.c Variable_destroyをPFunctionHeap使って実装
