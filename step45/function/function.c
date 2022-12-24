@@ -148,15 +148,27 @@ Variable** Function_call_with_Rconstant(Function* p_self, const char* name, Vari
 
 void Function_destroy(Function* p_self) {
   for (int i = 0; i < p_self->input_num; i++) {
-    assert(p_self->p_io[0][i] != NULL);
-    free(p_self->p_io[0][i]);
+    if (p_self->p_io[0][i] != NULL); {
+      free(p_self->p_io[0][i]);
+      p_self->p_io[0][i] = NULL;
+    }
   }
   for (int i = 0; i < p_self->output_num; i++) {
-    assert(p_self->p_io[1][i] != NULL);
-    free(p_self->p_io[1][i]);
+    if (p_self->p_io[1][i] != NULL) {
+      free(p_self->p_io[1][i]);
+      p_self->p_io[1][i] = NULL;
+    }
   }
-  assert(p_self->p_io[0] != NULL && p_self->p_io[1] != NULL && p_self->p_io != NULL);
-  free(p_self->p_io[0]);
-  free(p_self->p_io[1]);
-  free(p_self->p_io);
+  if (p_self->p_io[0] != NULL) {
+    free(p_self->p_io[0]);
+    p_self->p_io[0] = NULL;
+  }
+  if (p_self->p_io[1] != NULL) {
+    free(p_self->p_io[1]);
+    p_self->p_io[1] = NULL;
+  }
+  if (p_self->p_io != NULL) {
+    free(p_self->p_io);
+    p_self->p_io = NULL;
+  }
 }
