@@ -57,7 +57,7 @@ int main() {
   // Layer_add_layer(&model, (Layer*)&l2);
 
   TwoLayerNet model;
-  TwoLayerNet_init(&model, 50, 1);
+  TwoLayerNet_init(&model, 10, 1);
   
   float lr = 0.2;
   int iters = 10000;

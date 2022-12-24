@@ -2,5 +2,6 @@
 *.vscode
 *.png
 *.dot
+*.out
 graphviz
 sample.txt
