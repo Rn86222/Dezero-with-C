@@ -308,6 +308,8 @@ static void ndarray_print(float* array, const int dim, const int size, const int
   if (isFinal == FALSE) {
     printf(",\n");
   }
+  free(down_shape);
+  free(down_array);
 }
 
 void Ndarray_print(const Ndarray* p_self) {
@@ -534,18 +536,24 @@ Ndarray Ndarray_dot(const Ndarray a, const Ndarray b) {
           c.array[i * shape[1] + j] += a.array[i * a.shape[1] + k] * b.array[k * b.shape[1] + j];
       }
     }
+    free(shape);
     return c;
   } else {
+    free(shape);
     printf("Ndarray_dot error: can't manipulate 3- or more- dimention-array.");
     return a;
   }
 }
 
 void Ndarray_destroy(Ndarray* p_self) {
-  free(p_self->array);
-  p_self->array = NULL;
-  free(p_self->shape);
-  p_self->shape = NULL;
+  if (p_self->array != NULL) {
+    free(p_self->array);
+    p_self->array = NULL;
+  }
+  if (p_self->shape != NULL) {
+    free(p_self->shape);
+    p_self->shape = NULL;
+  }
   p_self->size = 0;
   p_self->dim = 0;
   free(p_self);

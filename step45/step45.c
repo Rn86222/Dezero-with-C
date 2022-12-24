@@ -60,7 +60,7 @@ int main() {
   TwoLayerNet_init(&model, 10, 1);
   
   float lr = 0.2;
-  int iters = 10000;
+  int iters = 15000;
 
   Variable* y_pred;
   Variable* loss;

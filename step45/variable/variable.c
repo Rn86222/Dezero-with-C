@@ -214,6 +214,6 @@ void Variable_destroy(Variable* p_self, const bool destroyAll) {
       }
     }
   }
-  //FunctionHeap_destroy(&fh);
+  PFunctionHeap_destroy(&fh);
   free(seen_is);
 }
