@@ -186,6 +186,10 @@ void Variable_print(Variable* p_self) {
 void Variable_destroy(Variable* p_self, const bool destroyAll) {
   Ndarray_destroy(p_self->p_data);
   Ndarray_destroy(p_self->p_grad->p_data);
+  if (p_self->p_grad != NULL) {
+    free(p_self->p_grad);
+    p_self->p_grad == NULL;
+  }
   if (!destroyAll || p_self->creator_exists == FALSE)
     return;
   PFunctionHeap fh;
@@ -209,10 +213,15 @@ void Variable_destroy(Variable* p_self, const bool destroyAll) {
         if (f->p_io[0][i]->creator_exists) {
           Ndarray_destroy(f->p_io[0][i]->p_data);
           Ndarray_destroy(f->p_io[0][i]->p_grad->p_data);
+          if (f->p_io[0][i]->p_grad != NULL) {
+            free(f->p_io[0][i]->p_grad);
+            f->p_io[0][i]->p_grad = NULL;
+          }
           PFunctionHeap_insert(&fh, f->p_io[0][i]->p_creator);
         }
       }
     }
+    Function_destroy(f);
   }
   PFunctionHeap_destroy(&fh);
   free(seen_is);

@@ -34,12 +34,12 @@ Variable** Function_call(Function* p_self, const char* name, ...) {
   for (int i = 0; i < p_self->input_num; i++) {
     p_self->p_io[0][i] = va_arg(va_ptr, Variable*);
     xs[i] = *(p_self->p_io[0][i]->p_data);
-    if (max_gen < p_self->p_io[0][i]->generation) {
+    if (max_gen < p_self->p_io[0][i]->generation)
       max_gen = p_self->p_io[0][i]->generation;
-    }
   }
   p_self->generation = max_gen;
   va_end(va_ptr);
+  
   int name_len = strlen(name);
   char y_name[100];
   bool noname = (name_len == 0);
@@ -50,11 +50,10 @@ Variable** Function_call(Function* p_self, const char* name, ...) {
     y_name[0] = '\0';
   }
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = p_self->p_methods->forward(p_self, xs);
   for (int i = 0; i < p_self->output_num; i++) {
     if (!noname)
       sprintf(y_name+name_len+1, "%d", i);
-    ys[i] = (p_self->p_methods->forward(p_self, xs))[i];
     Variable_init(p_self->p_io[1][i], ys[i], y_name);
     Variable_set_creator(p_self->p_io[1][i], p_self);
   }
@@ -87,11 +86,10 @@ Variable** Function_call_with_Lconstant(Function* p_self, const char* name, cons
     y_name[0] = '\0';
   }
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = p_self->p_methods->forward(p_self, xs);
   for (int i = 0; i < p_self->output_num; i++) {
     if (!noname)
       sprintf(y_name+name_len+1, "%d", i);
-    ys[i] = (p_self->p_methods->forward(p_self, xs))[i];
     Variable_init(p_self->p_io[1][i], ys[i], y_name);
     Variable_set_creator(p_self->p_io[1][i], p_self);
   }
@@ -124,11 +122,10 @@ Variable** Function_call_with_Rconstant(Function* p_self, const char* name, Vari
     y_name[0] = '\0';
   }
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = p_self->p_methods->forward(p_self, xs);
   for (int i = 0; i < p_self->output_num; i++) {
     if (!noname)
       sprintf(y_name+name_len+1, "%d", i);
-    ys[i] = (p_self->p_methods->forward(p_self, xs))[i];
     Variable_init(p_self->p_io[1][i], ys[i], y_name);
     Variable_set_creator(p_self->p_io[1][i], p_self);
   }
@@ -147,12 +144,6 @@ Variable** Function_call_with_Rconstant(Function* p_self, const char* name, Vari
 // }
 
 void Function_destroy(Function* p_self) {
-  for (int i = 0; i < p_self->input_num; i++) {
-    if (p_self->p_io[0][i] != NULL); {
-      free(p_self->p_io[0][i]);
-      p_self->p_io[0][i] = NULL;
-    }
-  }
   for (int i = 0; i < p_self->output_num; i++) {
     if (p_self->p_io[1][i] != NULL) {
       free(p_self->p_io[1][i]);
