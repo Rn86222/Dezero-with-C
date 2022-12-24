@@ -83,15 +83,16 @@ int main() {
     // }
     Layer_update_params((Layer*)&model, lr);
 
-    if (i % 1000 == 0)
+    if (i % 1000 == 0) {
       Ndarray_print(loss->p_data);
-
+      // printf("\033[%dA" ,1); //カーソルを1行だけ上に移動
+    }
+    
     Variable_destroy(loss, TRUE);
   }
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 100; i++)
     fprintf(gp, "%f\t%f\n", x_data.array[i], predict(&x, (Layer*)&model)->p_data->array[i]);
-  }
 
   fprintf(gp, "set terminal windows\n");
 
