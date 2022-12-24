@@ -89,6 +89,7 @@ int main() {
     }
     
     Variable_destroy(loss, TRUE);
+    printf("%d\n", i);
   }
 
   for (int i = 0; i < 100; i++)

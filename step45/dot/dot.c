@@ -10,7 +10,7 @@
 void dot_var(char* line, const Variable* v, const bool verbose) {
   char tmp[10];
   sprintf(tmp, "%p", v);
-  sprintf(line, "%d", strtol(tmp, NULL, 16));
+  sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
   int len = strlen(line);
   strcpy(line+len, " [label=\"");
   len = strlen(line);
@@ -40,7 +40,7 @@ void dot_var(char* line, const Variable* v, const bool verbose) {
 void dot_func(char* line, const Function* f) {
   char tmp[10];
   sprintf(tmp, "%p", f);
-  sprintf(line, "%d", strtol(tmp, NULL, 16));
+  sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
   int len = strlen(line);
   strcpy(line+len, " [label=\"");
   len = strlen(line);
@@ -50,24 +50,24 @@ void dot_func(char* line, const Function* f) {
   len = strlen(line);
   for (int i = 0; i < f->input_num; i++) {
     sprintf(tmp, "%p", f->p_io[0][i]);
-    sprintf(line+len, "%d", strtol(tmp, NULL, 16));
+    sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
     len = strlen(line);
     strcpy(line+len, " -> ");
     len = strlen(line);
     sprintf(tmp, "%p", f);
-    sprintf(line+len, "%d", strtol(tmp, NULL, 16));
+    sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
     len = strlen(line);
     strcpy(line+len, "\n");
     len = strlen(line);
   }
   for (int i = 0; i < f->output_num; i++) {
     sprintf(tmp, "%p", f);
-    sprintf(line+len, "%d", strtol(tmp, NULL, 16));
+    sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
     len = strlen(line);
     strcpy(line+len, " -> ");
     len = strlen(line);
     sprintf(tmp, "%p", f->p_io[1][i]);
-    sprintf(line+len, "%d", strtol(tmp, NULL, 16));
+    sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
     len = strlen(line);
     strcpy(line+len, "\n");
     len = strlen(line);
@@ -123,7 +123,7 @@ void plot_dot_graph(const Variable* output, const bool verbose, const bool retai
   char* txt;
   txt = (char*)malloc(DOT_TEXT_SIZE * sizeof(char));
   get_dot_graph(txt, output, verbose);
-  fprintf(fp, txt);
+  fprintf(fp, "%s", txt);
   fclose(fp);
   char cmd[50];
   strcpy(cmd, "dot tmp_graph.dot -T png -o ");
