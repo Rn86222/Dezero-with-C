@@ -73,11 +73,11 @@ int main() {
 
     Layer_cleargrads((Layer*)&model);
 
-    Variable_backward(loss, FALSE);
+    Variable_backward(loss, FALSE, FALSE);
 
      if (i == 0) {
       plot_dot_graph(loss, TRUE, TRUE, "loss_graph.png");
-      plot_dot_graph(x.p_grad, TRUE, TRUE, "xgrad_graph.png");
+      // plot_dot_graph(x.p_grad, TRUE, TRUE, "xgrad_graph.png");
     }
 
     // for (int i = 0; i < ((Layer*)&model)->layer_num; i++) {

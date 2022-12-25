@@ -2,6 +2,7 @@
 #include "../function/functions.h"
 #include "../macro/constant.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/enable_backdrop/config.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ void Variable_set_creator(Variable* p_self, Function* func) {
   p_self->generation = func->generation + 1;
 }
 
-void Variable_backward(Variable* p_self, const bool retain_grad) {
+void Variable_backward(Variable* p_self, const bool retain_grad, const bool create_graph) {
   if (p_self->creator_exists == FALSE) {
     return;
   }
@@ -84,6 +85,10 @@ void Variable_backward(Variable* p_self, const bool retain_grad) {
   seen_fs = (Function**)malloc(FUNCTION_HEAP_SIZE * sizeof(Function*));
   seen_fs[0] = p_self->p_creator;
   int cnt = 1;
+
+  bool tmp = ENABLE_BACKDROP;
+  if (!create_graph)
+    ENABLE_BACKDROP = FALSE;
   
   while (fh.last != -1) {
     f = PFunctionHeap_deletemax(&fh);
@@ -125,6 +130,7 @@ void Variable_backward(Variable* p_self, const bool retain_grad) {
     }
   }
   free(seen_fs);
+  ENABLE_BACKDROP = tmp;
 }
 
 void Variable_cleargrad(Variable* p_self) {

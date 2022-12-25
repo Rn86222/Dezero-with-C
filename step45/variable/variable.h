@@ -23,7 +23,7 @@ void Variable_init(Variable* p_self, const Ndarray data, const char* name);
 void Variable_init_as_param(Variable* p_self, const Ndarray data, const char* name);
 void Variable_init_as_one_constant(Variable* p_self, const float value);
 void Variable_set_creator(Variable* p_self, Function* func);
-void Variable_backward(Variable* p_self, const bool retain_grad);
+void Variable_backward(Variable* p_self, const bool retain_grad, const bool create_graph);
 void Variable_cleargrad(Variable* p_self);
 Variable* Variable_reshape(Variable* p_self, ...);
 Variable* Variable_transpose(Variable* p_self, ...);

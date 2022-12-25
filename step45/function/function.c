@@ -88,6 +88,7 @@ Variable** Function_call(Function* p_self, const char* name, ...) {
     Variable** outputs;
     outputs = (Variable**)malloc(p_self->output_num * sizeof(Variable*));
     for (int i = 0; i < p_self->output_num; i++) {
+      outputs[i] = (Variable*)malloc(sizeof(Variable));
       if (!noname)
         sprintf(y_name+name_len+1, "%d", i);
       Variable_init(outputs[i], ys[i], y_name);
