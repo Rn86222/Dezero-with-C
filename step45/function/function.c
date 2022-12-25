@@ -1,6 +1,7 @@
 #include "function.h"
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/enable_backdrop/config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -26,40 +27,76 @@ void Function_init(Function* p_self, const int input_num, const int output_num) 
 }
 
 Variable** Function_call(Function* p_self, const char* name, ...) {
-  va_list va_ptr;
-  va_start(va_ptr, name);
-  Ndarray* xs;
-  xs = (Ndarray*)malloc(p_self->input_num * sizeof(Ndarray));
-  int max_gen = 0;
-  for (int i = 0; i < p_self->input_num; i++) {
-    p_self->p_io[0][i] = va_arg(va_ptr, Variable*);
-    xs[i] = *(p_self->p_io[0][i]->p_data);
-    if (max_gen < p_self->p_io[0][i]->generation)
-      max_gen = p_self->p_io[0][i]->generation;
-  }
-  p_self->generation = max_gen;
-  va_end(va_ptr);
-  
-  int name_len = strlen(name);
-  char y_name[100];
-  bool noname = (name_len == 0);
-  if (!noname) {
-    strcpy(y_name, name);
-    y_name[name_len] = '_';
+  if (ENABLE_BACKDROP) {
+    va_list va_ptr;
+    va_start(va_ptr, name);
+    Ndarray* xs;
+    xs = (Ndarray*)malloc(p_self->input_num * sizeof(Ndarray));
+    int max_gen = 0;
+    for (int i = 0; i < p_self->input_num; i++) {
+      p_self->p_io[0][i] = va_arg(va_ptr, Variable*);
+      xs[i] = *(p_self->p_io[0][i]->p_data);
+      if (max_gen < p_self->p_io[0][i]->generation)
+        max_gen = p_self->p_io[0][i]->generation;
+    }
+    p_self->generation = max_gen;
+    va_end(va_ptr);
+    
+    int name_len = strlen(name);
+    char y_name[100];
+    bool noname = (name_len == 0);
+    if (!noname) {
+      strcpy(y_name, name);
+      y_name[name_len] = '_';
+    } else {
+      y_name[0] = '\0';
+    }
+    Ndarray* ys;
+    ys = p_self->p_methods->forward(p_self, xs);
+    for (int i = 0; i < p_self->output_num; i++) {
+      if (!noname)
+        sprintf(y_name+name_len+1, "%d", i);
+      Variable_init(p_self->p_io[1][i], ys[i], y_name);
+      Variable_set_creator(p_self->p_io[1][i], p_self);
+    }
+    free(xs);
+    free(ys);
+    return p_self->p_io[1];
   } else {
-    y_name[0] = '\0';
+    va_list va_ptr;
+    va_start(va_ptr, name);
+    Ndarray* xs;
+    xs = (Ndarray*)malloc(p_self->input_num * sizeof(Ndarray));
+    for (int i = 0; i < p_self->input_num; i++) {
+      p_self->p_io[0][i] = va_arg(va_ptr, Variable*);
+      xs[i] = *(p_self->p_io[0][i]->p_data);
+    }
+    p_self->generation = 0;
+    va_end(va_ptr);
+
+    int name_len = strlen(name);
+    char y_name[100];
+    bool noname = (name_len == 0);
+    if (!noname) {
+      strcpy(y_name, name);
+      y_name[name_len] = '_';
+    } else {
+      y_name[0] = '\0';
+    }
+    Ndarray* ys;
+    ys = p_self->p_methods->forward(p_self, xs);
+    Variable** outputs;
+    outputs = (Variable**)malloc(p_self->output_num * sizeof(Variable*));
+    for (int i = 0; i < p_self->output_num; i++) {
+      if (!noname)
+        sprintf(y_name+name_len+1, "%d", i);
+      Variable_init(outputs[i], ys[i], y_name);
+    }
+    free(xs);
+    free(ys);
+    return outputs;
   }
-  Ndarray* ys;
-  ys = p_self->p_methods->forward(p_self, xs);
-  for (int i = 0; i < p_self->output_num; i++) {
-    if (!noname)
-      sprintf(y_name+name_len+1, "%d", i);
-    Variable_init(p_self->p_io[1][i], ys[i], y_name);
-    Variable_set_creator(p_self->p_io[1][i], p_self);
-  }
-  free(xs);
-  free(ys);
-  return p_self->p_io[1];
+  
 }
 
 Variable** Function_call_with_Lconstant(Function* p_self, const char* name, const float constant, Variable* p_input) {
