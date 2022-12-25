@@ -183,14 +183,19 @@ void Variable_print(Variable* p_self) {
   Ndarray_print(p_self->p_data);
 }
 
-void Variable_destroy(Variable* p_self, const bool destroyAll) {
+void Variable_destroy(Variable* p_self, const bool upstream) {
   Ndarray_destroy(p_self->p_data);
-  Ndarray_destroy(p_self->p_grad->p_data);
+  p_self->p_data = NULL;
+  if (p_self->grad_exists) {
+    Ndarray_destroy(p_self->p_grad->p_data);
+    p_self->p_grad->p_data = NULL;
+    p_self->grad_exists = FALSE;
+  }
   if (p_self->p_grad != NULL) {
     free(p_self->p_grad);
     p_self->p_grad == NULL;
   }
-  if (!destroyAll || p_self->creator_exists == FALSE)
+  if (!upstream || p_self->creator_exists == FALSE)
     return;
   PFunctionHeap fh;
   PFunctionHeap_init(&fh, FUNCTION_HEAP_SIZE);
@@ -209,15 +214,19 @@ void Variable_destroy(Variable* p_self, const bool destroyAll) {
       }
       if (!found) {
         seen_is[cnt++] = f->p_io[0][i];
-        // Variable_destroy(f.p_io[0][i]->p_grad, TRUE);
         if (f->p_io[0][i]->creator_exists) {
           Ndarray_destroy(f->p_io[0][i]->p_data);
-          Ndarray_destroy(f->p_io[0][i]->p_grad->p_data);
+          f->p_io[0][i]->p_data = NULL;
+          if (f->p_io[0][i]->grad_exists) {
+            Ndarray_destroy(f->p_io[0][i]->p_grad->p_data);
+            f->p_io[0][i]->p_grad->p_data = NULL;
+          }
           if (f->p_io[0][i]->p_grad != NULL) {
             free(f->p_io[0][i]->p_grad);
             f->p_io[0][i]->p_grad = NULL;
           }
           PFunctionHeap_insert(&fh, f->p_io[0][i]->p_creator);
+          f->p_io[0][i]->creator_exists = FALSE;
         }
       }
     }

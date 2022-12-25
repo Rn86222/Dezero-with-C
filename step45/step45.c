@@ -69,12 +69,15 @@ int main() {
     
     y_pred = predict(&x, (Layer*)&model);
     loss = mse(&y, y_pred);
-    if (i == 0)
-      plot_dot_graph(loss, TRUE, TRUE, "loss_graph.png");
 
     Layer_cleargrads((Layer*)&model);
 
     Variable_backward(loss, FALSE);
+
+     if (i == 0) {
+      plot_dot_graph(loss, TRUE, TRUE, "loss_graph.png");
+      plot_dot_graph(x.p_grad, TRUE, TRUE, "xgrad_graph.png");
+    }
 
     // for (int i = 0; i < ((Layer*)&model)->layer_num; i++) {
     //   for (int j = 0; j < ((Layer*)&model)->p_layers[i]->param_num; j++) {

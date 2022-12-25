@@ -162,4 +162,6 @@ void Function_destroy(Function* p_self) {
     free(p_self->p_io);
     p_self->p_io = NULL;
   }
+  p_self->input_num = 0;
+  p_self->output_num = 0;
 }

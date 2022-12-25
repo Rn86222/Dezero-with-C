@@ -546,15 +546,19 @@ Ndarray Ndarray_dot(const Ndarray a, const Ndarray b) {
 }
 
 void Ndarray_destroy(Ndarray* p_self) {
-  if (p_self->array != NULL) {
-    free(p_self->array);
-    p_self->array = NULL;
+  if (p_self != NULL) {
+    if (p_self->array != NULL) {
+      free(p_self->array);
+      p_self->array = NULL;
+    }
+    if (p_self->shape != NULL) {
+      free(p_self->shape);
+      p_self->shape = NULL;
+    }
+    p_self->size = 0;
+    p_self->dim = 0;
+    if (p_self != NULL) {
+      free(p_self);
+    }
   }
-  if (p_self->shape != NULL) {
-    free(p_self->shape);
-    p_self->shape = NULL;
-  }
-  p_self->size = 0;
-  p_self->dim = 0;
-  free(p_self);
 }
