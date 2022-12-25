@@ -14,7 +14,11 @@ void dot_var(char* line, const Variable* v, const bool verbose) {
   int len = strlen(line);
   strcpy(line+len, " [label=\"");
   len = strlen(line);
-  strcpy(line+len, v->name);
+  if (strlen(v->name) == 0) {
+    strcpy(line+len, "None");
+  } else {
+    strcpy(line+len, v->name);
+  }
   len = strlen(line);
   if (verbose) {
     strcpy(line+len, ": [");
