@@ -21,6 +21,8 @@
 #include "mse.h"
 #include "linear.h"
 #include "sigmoid.h"
+#include "functionheap.h"
+#include "pfunctionheap.h"
 #include "../variable/variable.h"
 
 #ifndef _FUNCTIONS_H_

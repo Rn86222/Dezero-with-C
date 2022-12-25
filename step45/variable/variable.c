@@ -1,8 +1,5 @@
 #include "variable.h"
-#include "../function/function.h"
 #include "../function/functions.h"
-#include "../function/functionheap.h"
-#include "../function/pfunctionheap.h"
 #include "../macro/constant.h"
 #include "../ndarray/ndarray.h"
 #include <stdio.h>
