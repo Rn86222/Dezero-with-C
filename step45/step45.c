@@ -9,6 +9,7 @@
 #include "macro/constant.h"
 #include "dot/dot.h"
 #include "layer/layers.h"
+#include "utils/enable_backdrop/config.h"
 
 #define GNUPLOT "gnuplot -persist"
 
