@@ -8,7 +8,7 @@
 #include <string.h>
 
 void dot_var(char* line, const Variable* v, const bool verbose) {
-  char tmp[10];
+  char tmp[20];
   sprintf(tmp, "%p", v);
   sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
   int len = strlen(line);
@@ -18,7 +18,7 @@ void dot_var(char* line, const Variable* v, const bool verbose) {
   len = strlen(line);
   if (verbose) {
     strcpy(line+len, ": [");
-    len = strlen(line);;
+    len = strlen(line);
     for (int i = 0; i < v->p_data->dim - 1; i++) {
       sprintf(line+len, "%d", v->p_data->shape[i]);
       len = strlen(line);
@@ -38,7 +38,7 @@ void dot_var(char* line, const Variable* v, const bool verbose) {
 }
 
 void dot_func(char* line, const Function* f) {
-  char tmp[10];
+  char tmp[20];
   sprintf(tmp, "%p", f);
   sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
   int len = strlen(line);
@@ -134,6 +134,6 @@ void plot_dot_graph(const Variable* output, const bool verbose, const bool retai
   }
   system(cmd);
   if (!retain_dot)
-    system("del tmp_graph.dot");
+    system("rm tmp_graph.dot");
   free(txt);
 }

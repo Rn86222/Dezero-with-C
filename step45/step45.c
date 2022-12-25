@@ -60,7 +60,7 @@ int main() {
   TwoLayerNet_init(&model, 10, 1);
   
   float lr = 0.2;
-  int iters = 20000;
+  int iters = 10000;
 
   Variable* y_pred;
   Variable* loss;
@@ -69,6 +69,8 @@ int main() {
     
     y_pred = predict(&x, (Layer*)&model);
     loss = mse(&y, y_pred);
+    if (i == 0)
+      plot_dot_graph(loss, TRUE, TRUE, "loss_graph.png");
 
     Layer_cleargrads((Layer*)&model);
 
@@ -103,6 +105,5 @@ int main() {
     exit(2);
   }
 
-  // plot_dot_graph(loss, FALSE, FALSE, "loss_graph.png");
   return 0;
 }
