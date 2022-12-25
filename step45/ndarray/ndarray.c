@@ -12,7 +12,7 @@ void Ndarray_init(Ndarray* p_self, const int dim, const int* shape) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   p_self->dim = dim;
   p_self->size = 1;
   for (int i = 0; i < dim; i++) {
@@ -29,7 +29,7 @@ void Ndarray_init_shape(Ndarray* p_self, const int dim, ...) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
   p_self->dim = dim;
@@ -52,7 +52,7 @@ void Ndarray_init_shape_rand(Ndarray* p_self, const int dim, ...) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
   p_self->dim = dim;
@@ -79,7 +79,7 @@ void Ndarray_init_shape_randn(Ndarray* p_self, const int dim, ...) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
   p_self->dim = dim;
@@ -108,7 +108,7 @@ void Ndarray_init_shape_zero(Ndarray* p_self, const int dim, ...) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
   p_self->dim = dim;
@@ -132,7 +132,7 @@ void Ndarray_init_as_zeros(Ndarray* p_self, const int dim, const int* shape) {
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
-  assert(dim != 0);
+  assert(dim > 0);
   p_self->dim = dim;
   p_self->size = 1;
   for (int i = 0; i < dim; i++) {
