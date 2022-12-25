@@ -13,7 +13,6 @@ static Ndarray* mse_forward(Function* const p_self, const Ndarray* xs) {
 	Ndarray* ys;
 	ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
 	int shape[1] = {1};
-	// printf("%d ", Ndarray_sub(xs[0], xs[1]).shape[0]);
 	ys[0] = Ndarray_constant_mul(Ndarray_sum_to(Ndarray_square(Ndarray_sub(xs[0], xs[1])), 0, shape), (float)1.0 / Ndarray_sub(xs[0], xs[1]).shape[0]);
 	return ys;
 }
