@@ -7,74 +7,68 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void copy(char* s1, const char* s2) {
+  int len = strlen(s1);
+  strcpy(s1+len, s2);
+}
+
 void dot_var(char* line, const Variable* v, const bool verbose) {
   char tmp[20];
   sprintf(tmp, "%p", v);
   sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
-  int len = strlen(line);
-  strcpy(line+len, " [label=\"");
-  len = strlen(line);
+  int len ;
+  copy(line, " [label=\"");
   if (strlen(v->name) == 0) {
-    strcpy(line+len, "None");
+    copy(line, "None");
   } else {
-    strcpy(line+len, v->name);
+    copy(line, v->name);
   }
-  len = strlen(line);
   if (verbose) {
-    strcpy(line+len, ": [");
-    len = strlen(line);
+    copy(line, ": [");
     for (int i = 0; i < v->p_data->dim - 1; i++) {
+      len = strlen(line);
       sprintf(line+len, "%d", v->p_data->shape[i]);
-      len = strlen(line);
-      strcpy(line+len, ", ");
-      len = strlen(line);
+      copy(line, ", ");
     }
+    len = strlen(line);
     if (v->p_data->dim != 0) {
       sprintf(line+len, "%d", v->p_data->shape[v->p_data->dim-1]);
     } else {
       sprintf(line+len, "None");
     }
-    len = strlen(line);
-    strcpy(line+len, "]");
+    copy(line, "]");
   }
   len = strlen(line);
-  strcpy(line+len, "\", color=orange, style=filled]\n");
+  copy(line, "\", color=orange, style=filled]\n");
 }
 
 void dot_func(char* line, const Function* f) {
   char tmp[20];
   sprintf(tmp, "%p", f);
   sprintf(line, "%d", (int)strtol(tmp, NULL, 16));
-  int len = strlen(line);
-  strcpy(line+len, " [label=\"");
-  len = strlen(line);
-  strcpy(line+len, f->name);
-  len = strlen(line);
-  strcpy(line+len, "\", color=lightblue, style=filled, shape=box]\n");
-  len = strlen(line);
+  int len ;
+  copy(line, " [label=\"");
+  copy(line, f->name);
+  copy(line, "\", color=lightblue, style=filled, shape=box]\n");
   for (int i = 0; i < f->input_num; i++) {
     sprintf(tmp, "%p", f->p_io[0][i]);
+    len = strlen(line);
     sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
-    len = strlen(line);
-    strcpy(line+len, " -> ");
-    len = strlen(line);
+    copy(line, " -> ");
     sprintf(tmp, "%p", f);
+    len = strlen(line);
     sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
-    len = strlen(line);
-    strcpy(line+len, "\n");
-    len = strlen(line);
+    copy(line, "\n");
   }
   for (int i = 0; i < f->output_num; i++) {
     sprintf(tmp, "%p", f);
+    len = strlen(line);
     sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
-    len = strlen(line);
-    strcpy(line+len, " -> ");
-    len = strlen(line);
+    copy(line, " -> ");
     sprintf(tmp, "%p", f->p_io[1][i]);
+    len = strlen(line);
     sprintf(line+len, "%d", (int)strtol(tmp, NULL, 16));
-    len = strlen(line);
-    strcpy(line+len, "\n");
-    len = strlen(line);
+    copy(line, "\n");
   }
 }
 
@@ -92,15 +86,14 @@ void get_dot_graph(char* txt, const Variable* output, const bool verbose) {
   strcpy(txt, "digraph g {\n");
   int len = strlen(txt);
   dot_var(txt+len, output, verbose);
-  len = strlen(txt);
 
   while (fh.last != -1) {
     p_f = PFunctionHeap_deletemax(&fh);
-    dot_func(txt+len, p_f);
     len = strlen(txt);
+    dot_func(txt+len, p_f);
     for (int i = 0; i < p_f->input_num; i++) {
-      dot_var(txt+len, p_f->p_io[0][i], verbose);
       len = strlen(txt);
+      dot_var(txt+len, p_f->p_io[0][i], verbose);
       if (p_f->p_io[0][i]->creator_exists) {
         bool found = FALSE;
         for (int j = 0; j < cnt; j++) {
@@ -116,7 +109,7 @@ void get_dot_graph(char* txt, const Variable* output, const bool verbose) {
       }
     }
   }
-  strcpy(txt+len, "}");
+  copy(txt, "}");
   free(seen_fs);
 }
 
