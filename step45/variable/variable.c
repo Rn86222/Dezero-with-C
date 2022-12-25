@@ -128,6 +128,10 @@ void Variable_backward(Variable* p_self, const bool retain_grad, const bool crea
         f->p_io[1][i]->grad_exists = FALSE;
       }
     }
+    if (!create_graph) {
+      free(gxs);
+      free(gys);
+    }
   }
   free(seen_fs);
   ENABLE_BACKDROP = tmp;
