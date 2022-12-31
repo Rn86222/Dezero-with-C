@@ -2,6 +2,7 @@
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
 #include "../utils/enable_backdrop/config.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -9,19 +10,19 @@
 #include <stdarg.h>
 
 void Function_init(Function* p_self, const int input_num, const int output_num) {
-  p_self->p_io = (Variable***)malloc(2 * sizeof(Variable**));
-  p_self->p_io[0] = (Variable**)malloc(input_num * sizeof(Variable*));
-  p_self->p_io[1] = (Variable**)malloc(output_num * sizeof(Variable*));
+  p_self->p_io = (Variable***)mymalloc(2 * sizeof(Variable**));
+  p_self->p_io[0] = (Variable**)mymalloc(input_num * sizeof(Variable*));
+  p_self->p_io[1] = (Variable**)mymalloc(output_num * sizeof(Variable*));
   p_self->input_num = input_num;
   p_self->output_num = output_num;
   assert(p_self->p_io[0] != NULL && p_self->p_io[1] != NULL && p_self->p_io != NULL);
   
   for (int i = 0; i < input_num; i++) {
-    p_self->p_io[0][i] = (Variable*)malloc(sizeof(Variable));
+    p_self->p_io[0][i] = (Variable*)mymalloc(sizeof(Variable));
     assert(p_self->p_io[0][i] != NULL);
   }
   for (int i = 0; i < output_num; i++) {
-    p_self->p_io[1][i] = (Variable*)malloc(sizeof(Variable));
+    p_self->p_io[1][i] = (Variable*)mymalloc(sizeof(Variable));
     assert(p_self->p_io[1][i] != NULL);
   }
 }
@@ -60,7 +61,6 @@ Variable** Function_call(Function* p_self, const char* name, ...) {
       Variable_set_creator(p_self->p_io[1][i], p_self);
     }
     free(xs);
-    free(ys);
     return p_self->p_io[1];
   } else {
     va_list va_ptr;
@@ -86,15 +86,14 @@ Variable** Function_call(Function* p_self, const char* name, ...) {
     Ndarray* ys;
     ys = p_self->p_methods->forward(p_self, xs);
     Variable** outputs;
-    outputs = (Variable**)malloc(p_self->output_num * sizeof(Variable*));
+    outputs = (Variable**)mymalloc(p_self->output_num * sizeof(Variable*));
     for (int i = 0; i < p_self->output_num; i++) {
-      outputs[i] = (Variable*)malloc(sizeof(Variable));
+      outputs[i] = (Variable*)mymalloc(sizeof(Variable));
       if (!noname)
         sprintf(y_name+name_len+1, "%d", i);
       Variable_init(outputs[i], ys[i], y_name);
     }
     free(xs);
-    free(ys);
     return outputs;
   }
   
@@ -109,7 +108,7 @@ Variable** Function_call_with_Lconstant(Function* p_self, const char* name, cons
   p_self->generation = p_input->generation;
 
   Variable* const_v;
-  const_v = (Variable*)malloc(sizeof(Variable));
+  const_v = (Variable*)mymalloc(sizeof(Variable));
   Variable_init_as_one_constant(const_v, constant);
   p_self->p_io[0][0] = const_v;
   xs[0] = *(const_v->p_data);
@@ -132,7 +131,6 @@ Variable** Function_call_with_Lconstant(Function* p_self, const char* name, cons
     Variable_set_creator(p_self->p_io[1][i], p_self);
   }
   free(xs);
-  free(ys);
   return p_self->p_io[1];
 }
 
@@ -145,7 +143,7 @@ Variable** Function_call_with_Rconstant(Function* p_self, const char* name, Vari
   p_self->generation = p_input->generation;
 
   Variable* const_v;
-  const_v = (Variable*)malloc(sizeof(Variable));
+  const_v = (Variable*)mymalloc(sizeof(Variable));
   Variable_init_as_one_constant(const_v, constant);
   p_self->p_io[0][1] = const_v;
   xs[1] = *(const_v->p_data);
@@ -168,7 +166,6 @@ Variable** Function_call_with_Rconstant(Function* p_self, const char* name, Vari
     Variable_set_creator(p_self->p_io[1][i], p_self);
   }
   free(xs);
-  free(ys);
   return p_self->p_io[1];
 }
 

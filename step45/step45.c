@@ -10,6 +10,7 @@
 #include "dot/dot.h"
 #include "layer/layers.h"
 #include "utils/enable_backdrop/config.h"
+#include "utils/manage_memory/manage_memory.h"
 
 #define GNUPLOT "gnuplot -persist"
 
@@ -22,8 +23,8 @@ Variable* predict(Variable* x, Layer* model) {
 int main() {
   srand(0);
   Ndarray x_data, y_data;
-  Ndarray_init_shape_rand(&x_data, 2, 100, 1);
-  Ndarray_init_shape(&y_data, 2, 100, 1);
+  Ndarray_init_shape_rand_as_static(&x_data, 2, 100, 1);
+  Ndarray_init_shape_as_static(&y_data, 2, 100, 1);
   for (int i = 0; i < x_data.size; i++)
     y_data.array[i] = sin(2 * M_PI * x_data.array[i]) + (float)rand() / RAND_MAX;
 
@@ -45,8 +46,10 @@ int main() {
   fprintf(gp, "e\n");
 
   Variable x, y;
-  Variable_init(&x, x_data, "x");
-  Variable_init(&y, y_data, "y");
+  Variable_init_as_static(&x, x_data, "x");
+  Variable_init_as_static(&y, y_data, "y");
+  x.isConst = TRUE;
+  y.isConst = TRUE;
 
   // LinearL l1;
   // LinearL_init(&l1, 10, 0);
@@ -58,24 +61,23 @@ int main() {
   // Layer_add_layer(&model, (Layer*)&l2);
 
   TwoLayerNet model;
-  TwoLayerNet_init(&model, 10, 1);
+  TwoLayerNet_init(&model, 50, 1);
   
   float lr = 0.2;
-  int iters = 10000;
+  int iters = 30000;
 
   Variable* y_pred;
   Variable* loss;
 
   for (int i = 0; i < iters; i++) {
-    
     y_pred = predict(&x, (Layer*)&model);
     loss = mse(&y, y_pred);
 
     Layer_cleargrads((Layer*)&model);
 
-    Variable_backward(loss, FALSE, FALSE);
+    Variable_backward(loss, FALSE, TRUE);
 
-     if (i == 0) {
+    if (i == 0) {
       plot_dot_graph(loss, TRUE, TRUE, "loss_graph.png");
       // plot_dot_graph(x.p_grad, TRUE, TRUE, "xgrad_graph.png");
     }
@@ -94,7 +96,8 @@ int main() {
       // printf("\033[%dA" ,1); //カーソルを1行だけ上に移動
     }
     
-    Variable_destroy(loss, TRUE);
+    // Variable_destroy(loss, TRUE);
+    leak_detect_all_free();
   }
 
   for (int i = 0; i < 100; i++)

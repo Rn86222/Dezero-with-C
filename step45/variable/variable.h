@@ -20,6 +20,7 @@ typedef struct variable {
 } Variable;
 
 void Variable_init(Variable* p_self, const Ndarray data, const char* name);
+void Variable_init_as_static(Variable* p_self, const Ndarray data, const char* name);
 void Variable_init_as_param(Variable* p_self, const Ndarray data, const char* name);
 void Variable_init_as_one_constant(Variable* p_self, const float value);
 void Variable_set_creator(Variable* p_self, Function* func);

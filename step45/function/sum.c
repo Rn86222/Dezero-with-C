@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -11,7 +12,7 @@
 
 static Ndarray* sum_forward(Function* const p_self, const Ndarray* xs) {
 	Ndarray* ys;
-	ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+	ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
 	ys[0] = Ndarray_sum(xs[0], ((Sum*)p_self)->axis, ((Sum*)p_self)->keepdims);
 	return ys;
 }
@@ -21,7 +22,7 @@ static Variable* reshape_sum_backward(Variable* gy, const int* shape, const int 
 		return gy;
 	int* new_shape;
 	int new_dim = gy->p_data->dim + 1;
-	new_shape = (int*)malloc(new_dim * sizeof(int));
+	new_shape = (int*)mymalloc(new_dim * sizeof(int));
 	for (int i = 0; i < new_dim; i++) {
 		if (i == axis) {
 			new_shape[i] = 1;
@@ -34,7 +35,7 @@ static Variable* reshape_sum_backward(Variable* gy, const int* shape, const int 
 
 static Variable** sum_backward(Function* const p_self, Variable** gys) {
 	Variable** gxs;
-	gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+	gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
 	gxs[0] = broadcast_to(reshape_sum_backward(gys[0], p_self->p_io[0][0]->p_data->shape, ((Sum*)p_self)->axis, ((Sum*)p_self)->keepdims), p_self->p_io[0][0]->p_data->dim, p_self->p_io[0][0]->p_data->shape);
 	return gxs;
 }

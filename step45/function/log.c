@@ -3,6 +3,7 @@
 #include "../variable/variable.h"
 #include "log.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,14 +11,14 @@
 
 static Ndarray* log_forward(Function* const p_self, const Ndarray* xs) {
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
   ys[0] = Ndarray_map(xs[0], log);
   return ys;
 }
 
 static Variable** log_backward(Function* const p_self, Variable** gys) {
   Variable** gxs;
-  gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+  gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
   gxs[0] = divi(gys[0], p_self->p_io[0][0]);
   return gxs;
 }

@@ -5,10 +5,32 @@
 #include <stdarg.h>
 #include "../macro/constant.h"
 #include "ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 
 void Ndarray_init(Ndarray* p_self, const int dim, const int* shape) {
   if (dim == 0) {
     Ndarray_init_as_scalar(p_self);
+    return;
+  }
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
+  assert(dim > 0);
+  p_self->dim = dim;
+  p_self->size = 1;
+  for (int i = 0; i < dim; i++) {
+    if (shape[i] == 0) {
+      printf("shape[%d]=0 dim=%d\n", i, dim);
+      Ndarray_print(p_self);
+    }
+    assert(shape[i] != 0);
+    p_self->shape[i] = shape[i];
+    p_self->size *= shape[i];
+  }
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
+}
+
+void Ndarray_init_as_static(Ndarray* p_self, const int dim, const int* shape) {
+  if (dim == 0) {
+    Ndarray_init_as_scalar_as_static(p_self);
     return;
   }
   p_self->shape = (int*)malloc(dim * sizeof(int));
@@ -16,6 +38,10 @@ void Ndarray_init(Ndarray* p_self, const int dim, const int* shape) {
   p_self->dim = dim;
   p_self->size = 1;
   for (int i = 0; i < dim; i++) {
+    if (shape[i] == 0) {
+      printf("shape[%d]=0 dim=%d\n", i, dim);
+      Ndarray_print(p_self);
+    }
     assert(shape[i] != 0);
     p_self->shape[i] = shape[i];
     p_self->size *= shape[i];
@@ -28,7 +54,27 @@ void Ndarray_init_shape(Ndarray* p_self, const int dim, ...) {
     Ndarray_init_as_scalar(p_self);
     return;
   }
-  p_self->shape = (int*)malloc(dim * sizeof(int));
+  assert(dim > 0);
+  va_list va_ptr;
+  va_start(va_ptr, dim);
+  p_self->dim = dim;
+  p_self->size = 1;
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
+  for (int i = 0; i < dim; i++) {
+    int len = va_arg(va_ptr, int);
+    assert(len != 0);
+    p_self->shape[i] = len;
+    p_self->size *= len;
+  }
+  va_end(va_ptr);
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
+}
+
+void Ndarray_init_shape_as_static(Ndarray* p_self, const int dim, ...) {
+  if (dim == 0) {
+    Ndarray_init_as_scalar_as_static(p_self);
+    return;
+  }
   assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
@@ -51,7 +97,30 @@ void Ndarray_init_shape_rand(Ndarray* p_self, const int dim, ...) {
     p_self->array[0] = (float)rand() / RAND_MAX;
     return;
   }
-  p_self->shape = (int*)malloc(dim * sizeof(int));
+  assert(dim > 0);
+  va_list va_ptr;
+  va_start(va_ptr, dim);
+  p_self->dim = dim;
+  p_self->size = 1;
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
+  for (int i = 0; i < dim; i++) {
+    int len = va_arg(va_ptr, int);
+    assert(len != 0);
+    p_self->shape[i] = len;
+    p_self->size *= len;
+  }
+  va_end(va_ptr);
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
+  for (int i = 0; i < p_self->size; i++)
+    p_self->array[i] = (float)rand() / RAND_MAX;
+}
+
+void Ndarray_init_shape_rand_as_static(Ndarray* p_self, const int dim, ...) {
+  if (dim == 0) {
+    Ndarray_init_as_scalar_as_static(p_self);
+    p_self->array[0] = (float)rand() / RAND_MAX;
+    return;
+  }
   assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
@@ -78,7 +147,35 @@ void Ndarray_init_shape_randn(Ndarray* p_self, const int dim, ...) {
     p_self->array[0] = sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
     return;
   }
-  p_self->shape = (int*)malloc(dim * sizeof(int));
+  assert(dim > 0);
+  va_list va_ptr;
+  va_start(va_ptr, dim);
+  p_self->dim = dim;
+  p_self->size = 1;
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
+  for (int i = 0; i < dim; i++) {
+    int len = va_arg(va_ptr, int);
+    assert(len != 0);
+    p_self->shape[i] = len;
+    p_self->size *= len;
+  }
+  va_end(va_ptr);
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
+  for (int i = 0; i < p_self->size; i++) {
+    float u1 = (float)rand() / RAND_MAX;
+    float u2 = (float)rand() / RAND_MAX;
+    p_self->array[i] = sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
+  }
+}
+
+void Ndarray_init_shape_randn_as_static(Ndarray* p_self, const int dim, ...) {
+  if (dim == 0) {
+    Ndarray_init_as_scalar_as_static(p_self);
+    float u1 = (float)rand() / RAND_MAX;
+    float u2 = (float)rand() / RAND_MAX;
+    p_self->array[0] = sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
+    return;
+  }
   assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
@@ -100,14 +197,36 @@ void Ndarray_init_shape_randn(Ndarray* p_self, const int dim, ...) {
   }
 }
 
-
 void Ndarray_init_shape_zero(Ndarray* p_self, const int dim, ...) {
   if (dim == 0) {
     Ndarray_init_as_scalar(p_self);
     p_self->array[0] = 0.0;
     return;
   }
-  p_self->shape = (int*)malloc(dim * sizeof(int));
+  assert(dim > 0);
+  va_list va_ptr;
+  va_start(va_ptr, dim);
+  p_self->dim = dim;
+  p_self->size = 1;
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
+  for (int i = 0; i < dim; i++) {
+    int len = va_arg(va_ptr, int);
+    assert(len != 0);
+    p_self->shape[i] = len;
+    p_self->size *= len;
+  }
+  va_end(va_ptr);
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
+  for (int i = 0; i < p_self->size; i++)
+    p_self->array[i] = 0.0;
+}
+
+void Ndarray_init_shape_zero_as_static(Ndarray* p_self, const int dim, ...) {
+  if (dim == 0) {
+    Ndarray_init_as_scalar_as_static(p_self);
+    p_self->array[0] = 0.0;
+    return;
+  }
   assert(dim > 0);
   va_list va_ptr;
   va_start(va_ptr, dim);
@@ -131,7 +250,7 @@ void Ndarray_init_as_zeros(Ndarray* p_self, const int dim, const int* shape) {
     Ndarray_init_as_scalar(p_self);
     return;
   }
-  p_self->shape = (int*)malloc(dim * sizeof(int));
+  p_self->shape = (int*)mymalloc(dim * sizeof(int));
   assert(dim > 0);
   p_self->dim = dim;
   p_self->size = 1;
@@ -140,13 +259,22 @@ void Ndarray_init_as_zeros(Ndarray* p_self, const int dim, const int* shape) {
     p_self->shape[i] = shape[i];
     p_self->size *= shape[i];
   }
-  p_self->array = (float*)malloc(p_self->size * sizeof(float));
+  p_self->array = (float*)mymalloc(p_self->size * sizeof(float));
   for (int i = 0; i < p_self->size; i++) {
     p_self->array[i] = 0.0;
   }
 }
 
 void Ndarray_init_as_scalar(Ndarray* p_self) {
+  p_self->shape = (int*)mymalloc(sizeof(int));
+  p_self->dim = 0;
+  p_self->size = 1;
+  p_self->shape[0] = 1;
+  p_self->array = (float*)mymalloc(sizeof(float));
+  p_self->array[0] = 0.0;
+}
+
+void Ndarray_init_as_scalar_as_static(Ndarray* p_self) {
   p_self->shape = (int*)malloc(sizeof(int));
   p_self->dim = 0;
   p_self->size = 1;
@@ -154,6 +282,7 @@ void Ndarray_init_as_scalar(Ndarray* p_self) {
   p_self->array = (float*)malloc(sizeof(float));
   p_self->array[0] = 0.0;
 }
+
 
 void Ndarray_copy(Ndarray* p_self, const Ndarray original) {
   Ndarray_init(p_self, original.dim, original.shape);
@@ -190,6 +319,16 @@ Ndarray Ndarray_sub(const Ndarray a, const Ndarray b) {
   ndarray_auto_broadcast(&new_a, &new_b, a, b);
 
   Ndarray_init(&c, new_a.dim, new_a.shape);
+  for (int i = 0; i < c.size; i++)
+    c.array[i] = new_a.array[i] - new_b.array[i];
+  return c;
+} 
+
+Ndarray Ndarray_sub_as_static(const Ndarray a, const Ndarray b) {
+  Ndarray new_a, new_b, c;
+  ndarray_auto_broadcast(&new_a, &new_b, a, b);
+
+  Ndarray_init_as_static(&c, new_a.dim, new_a.shape);
   for (int i = 0; i < c.size; i++)
     c.array[i] = new_a.array[i] - new_b.array[i];
   return c;
@@ -250,6 +389,14 @@ Ndarray Ndarray_constant_add(const Ndarray a, float c) {
 Ndarray Ndarray_constant_mul(const Ndarray a, float c) {
   Ndarray b;
   Ndarray_init(&b, a.dim, a.shape);
+  for (int i = 0; i < b.size; i++)
+    b.array[i] = c * a.array[i];
+  return b;
+}
+
+Ndarray Ndarray_constant_mul_as_static(const Ndarray a, float c) {
+  Ndarray b;
+  Ndarray_init_as_static(&b, a.dim, a.shape);
   for (int i = 0; i < b.size; i++)
     b.array[i] = c * a.array[i];
   return b;
@@ -474,8 +621,11 @@ Ndarray Ndarray_broadcast_to(const Ndarray a, const int dim, const int* shape) {
 
   int size = 1;
   int b_size = a.size;
-  for (int i = 0; i < a.dim; i++)
+  for (int i = 0; i < a.dim; i++) {
+    if (a.shape[a.dim - i - 1] != shape[dim - i - 1] && a.shape[a.dim - i - 1] != 1)
+      printf("a.shape[%d-%d-1]=%d %d shape[%d-%d-1]=%d\n", a.dim, i, a.shape[a.dim-i-1], a.shape[1], dim, i, shape[dim-i-1]);
     assert(a.shape[a.dim - i - 1] == shape[dim - i - 1] || a.shape[a.dim - i - 1] == 1);
+  }
   for (int i = 0; i < dim; i++) 
     size *= shape[i];
   int* b_shape;

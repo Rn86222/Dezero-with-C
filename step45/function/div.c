@@ -3,19 +3,20 @@
 #include "../variable/variable.h"
 #include "div.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <stdlib.h>
 #include <string.h>
 
 static Ndarray* div_forward(Function* const p_self, const Ndarray* xs) {
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
   ys[0] = Ndarray_div(xs[0], xs[1]);
   return ys;
 }
 
 static Variable** div_backward(Function* const p_self, Variable** gys) {
   Variable** gxs;
-  gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+  gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
   gxs[0] = divi(gys[0], p_self->p_io[0][1]);
   gxs[1] = mul(gys[0], neg(divi(p_self->p_io[1][0], p_self->p_io[0][1])));
   if (p_self->p_io[0][0]->p_data->size < p_self->p_io[0][1]->p_data->size) {

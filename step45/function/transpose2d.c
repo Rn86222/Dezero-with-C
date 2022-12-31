@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -10,14 +11,14 @@
 
 static Ndarray* transpose2d_forward(Function* const p_self, const Ndarray* xs) {
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
   ys[0] = Ndarray_transpose2d(xs[0]);
   return ys;
 }
 
 static Variable** transpose2d_backward(Function* const p_self, Variable** gys) {
   Variable** gxs;
-  gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+  gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
   gxs[0] = transpose2d(gys[0]);
   return gxs;
 }

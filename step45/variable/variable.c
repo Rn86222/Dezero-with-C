@@ -3,6 +3,7 @@
 #include "../macro/constant.h"
 #include "../ndarray/ndarray.h"
 #include "../utils/enable_backdrop/config.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +11,18 @@
 #include <assert.h>
 
 void Variable_init(Variable* p_self, const Ndarray data, const char* name) {
+  p_self->p_data = (Ndarray*)mymalloc(sizeof(Ndarray));
+  p_self->p_grad = (Variable*)mymalloc(sizeof(Variable));
+  *(p_self->p_data) = data;
+  strcpy(p_self->name, name);
+  p_self->creator_exists = FALSE;
+  p_self->grad_exists = FALSE;
+  p_self->isConst = FALSE;
+  p_self->isParam = FALSE;
+  p_self->generation = 0;
+}
+
+void Variable_init_as_static(Variable* p_self, const Ndarray data, const char* name) {
   p_self->p_data = (Ndarray*)malloc(sizeof(Ndarray));
   p_self->p_grad = (Variable*)malloc(sizeof(Variable));
   *(p_self->p_data) = data;
@@ -35,10 +48,10 @@ void Variable_init_as_param(Variable* p_self, const Ndarray data, const char* na
 
 void Variable_init_as_one_constant(Variable* p_self, const float value) {
   int shape[1] = {1};
-  p_self->p_data = (Ndarray*)malloc(sizeof(Ndarray));
-  p_self->p_grad = (Variable*)malloc(sizeof(Variable));
-  p_self->p_data->array = (float*)malloc(sizeof(float));
-  p_self->p_data->shape = (int*)malloc(sizeof(int));
+  p_self->p_data = (Ndarray*)mymalloc(sizeof(Ndarray));
+  p_self->p_grad = (Variable*)mymalloc(sizeof(Variable));
+  p_self->p_data->array = (float*)mymalloc(sizeof(float));
+  p_self->p_data->shape = (int*)mymalloc(sizeof(int));
   p_self->p_data->array[0] = value;
   p_self->p_data->dim = 0;
   p_self->p_data->shape[0] = 1;
@@ -64,7 +77,7 @@ void Variable_backward(Variable* p_self, const bool retain_grad, const bool crea
     return;
   }
   if (p_self->grad_exists == FALSE) {
-    p_self->p_grad = (Variable*)malloc(sizeof(Variable));
+    p_self->p_grad = (Variable*)mymalloc(sizeof(Variable));
     Ndarray data;
     Ndarray_init(&data, p_self->p_data->dim, p_self->p_data->shape);
     for (int i = 0; i < p_self->p_data->size; i++)
@@ -129,11 +142,11 @@ void Variable_backward(Variable* p_self, const bool retain_grad, const bool crea
       }
     }
     if (!create_graph) {
-      free(gxs);
       free(gys);
     }
   }
   free(seen_fs);
+  PFunctionHeap_destroy(&fh);
   ENABLE_BACKDROP = tmp;
 }
 
@@ -147,7 +160,7 @@ Variable* Variable_reshape(Variable* p_self, ...) {
   va_start(va_ptr, p_self);
   int* shape;
   int size = 1;
-  shape = (int*)malloc(dim * sizeof(int));
+  shape = (int*)mymalloc(dim * sizeof(int));
   for (int i = 0; i < dim; i++) {
     shape[i] = va_arg(va_ptr, int);
     size *= shape[i];
@@ -162,8 +175,8 @@ Variable* Variable_transpose(Variable* p_self, ...) {
   va_start(va_ptr, p_self);
   int* axes;
   int* used;
-  axes = (int*)malloc(dim * sizeof(int));
-  used = (int*)malloc(dim * sizeof(int));
+  axes = (int*)mymalloc(dim * sizeof(int));
+  used = (int*)mymalloc(dim * sizeof(int));
   for (int i = 0; i < dim; i++) {
     axes[i] = va_arg(va_ptr, int);
     assert(axes[i] < dim);

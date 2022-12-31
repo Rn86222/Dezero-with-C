@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -11,14 +12,14 @@
 
 static Ndarray* square_forward(Function* const p_self, const Ndarray* xs) {
   Ndarray* ys;
-  ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+  ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
   ys[0] = Ndarray_square(xs[0]);
   return ys;
 }
 
 static Variable** square_backward(Function* const p_self, Variable** gys) {
   Variable** gxs;
-  gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+  gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
   gxs[0] = mul(gys[0], mulLC(2.0, p_self->p_io[0][0]));
   return gxs;
 }

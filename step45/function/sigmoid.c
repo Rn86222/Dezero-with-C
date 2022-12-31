@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "../variable/variable.h"
 #include "../ndarray/ndarray.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -10,7 +11,7 @@
 
 static Ndarray* sigmoid_forward(Function* const p_self, const Ndarray* xs) {
 	Ndarray* ys;
-	ys = (Ndarray*)malloc(p_self->output_num * sizeof(Ndarray));
+	ys = (Ndarray*)mymalloc(p_self->output_num * sizeof(Ndarray));
 	ys[0] = Ndarray_constant_add(Ndarray_constant_mul(Ndarray_map(Ndarray_constant_mul(xs[0], 0.5), tanh), 0.5), 0.5);
 	// Ndarray_print(&ys[0]);
 	return ys;
@@ -18,7 +19,7 @@ static Ndarray* sigmoid_forward(Function* const p_self, const Ndarray* xs) {
 
 static Variable** sigmoid_backward(Function* const p_self, Variable** gys) {
 	Variable** gxs;
-	gxs = (Variable**)malloc(p_self->input_num * sizeof(Variable*));
+	gxs = (Variable**)mymalloc(p_self->input_num * sizeof(Variable*));
 	gxs[0] = mul(gys[0], mul(p_self->p_io[1][0], subLC(1, p_self->p_io[1][0])));
 	return gxs;
 }

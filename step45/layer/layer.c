@@ -1,4 +1,5 @@
 #include "layer.h"
+#include "../utils/manage_memory/manage_memory.h"
 #include <stdarg.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ void Layer_update_params(Layer* p_self, const float lr) {
     for (int j = 0; j < p_self->p_layers[i]->param_num; j++) {
       Ndarray param_data = *(p_self->p_layers[i]->p_params[j]->p_data);
       Ndarray param_grad = *(p_self->p_layers[i]->p_params[j]->p_grad->p_data);
-        *(p_self->p_layers[i]->p_params[j]->p_data) = Ndarray_sub(param_data, Ndarray_constant_mul(param_grad, lr));
+      *(p_self->p_layers[i]->p_params[j]->p_data) = Ndarray_sub_as_static(param_data, Ndarray_constant_mul(param_grad, lr));
     }
   }
 }
