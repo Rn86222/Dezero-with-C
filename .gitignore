@@ -4,5 +4,6 @@
 *.dot
 *.out
 *.o
+*.sh
 graphviz
 sample.txt

@@ -61,19 +61,23 @@ int main() {
   // Layer_add_layer(&model, (Layer*)&l2);
 
   TwoLayerNet model;
-  TwoLayerNet_init(&model, 50, 1);
+  TwoLayerNet_init(&model, 30, 1);
+
+  int output_sizes[] = {5, 5, 1};
+  MLP model2;
+  MLP_init(&model2, 3, output_sizes);
   
-  float lr = 0.2;
-  int iters = 30000;
+  float lr = 0.05;
+  int iters = 50000;
 
   Variable* y_pred;
   Variable* loss;
 
   for (int i = 0; i < iters; i++) {
-    y_pred = predict(&x, (Layer*)&model);
+    y_pred = predict(&x, (Layer*)&model2);
     loss = mse(&y, y_pred);
 
-    Layer_cleargrads((Layer*)&model);
+    Layer_cleargrads((Layer*)&model2);
 
     Variable_backward(loss, FALSE, TRUE);
 
@@ -89,7 +93,7 @@ int main() {
     //      *(((Layer*)&model)->p_layers[i]->p_params[j]->p_data) = Ndarray_sub(param_data, Ndarray_constant_mul(param_grad, lr));
     //   }
     // }
-    Layer_update_params((Layer*)&model, lr);
+    Layer_update_params((Layer*)&model2, lr);
 
     if (i % 1000 == 0) {
       Ndarray_print(loss->p_data);
@@ -101,7 +105,7 @@ int main() {
   }
 
   for (int i = 0; i < 100; i++)
-    fprintf(gp, "%f\t%f\n", x_data.array[i], predict(&x, (Layer*)&model)->p_data->array[i]);
+    fprintf(gp, "%f\t%f\n", x_data.array[i], predict(&x, (Layer*)&model2)->p_data->array[i]);
 
   fprintf(gp, "set terminal windows\n");
 
